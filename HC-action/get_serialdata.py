@@ -30,4 +30,8 @@ def Save_originaldata():
 
     file.close()
 
+def Get_accelerationdata():
+
+    return 1
+
 #Save_originaldata()
