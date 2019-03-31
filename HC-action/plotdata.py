@@ -3,57 +3,64 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import re
+from mpl_toolkits.mplot3d import Axes3D
 from time_integral import *
 
-velocity = [0, 0, 0]   #velocity[0]代表x轴速速度，velocity[1]代表y轴速度，velocity[2]代表z轴速度
-'''
-interval = 0.105 #积分时间间隔近似为0.105s即105ms,串口发送间隔为100ms
-gravity = 9.8 #重力加速度
-coefficientofgravity = 0.9 #静止情况下z轴的重力加速度系数
-'''
+locationdatapath = 'D:\pycharm\HC-Data\locationdata.txt'    #位置数据地址
 
-#文件路径S
-orgdatapath = 'D:\pycharm\HC-Data\originaldata.txt'
-shiftdatapath = 'D:\pycharm\HC-Data\shiftdata.txt'
-
-#list字符串转浮点数
-def stof(list):
+def Get_data():
     result = []
-    for element in list:
-        result.append(float(element))
+
+    file_location = open(locationdatapath, 'r', encoding='utf-8')
+    temp = file_location.readlines()
+
+    for elem in temp:
+        elem = re.sub('\n', '', elem)
+        location = re.split(' ', elem)
+        location = stof(location)
+        result.append(location)
+
+    file_location.close()
     return result
 
-#list浮点数转字符串
-def ftos(list):
+def Get_x(data):
     result = []
-    for element in list:
-        result.append(str(element))
+    for elem in data:
+        result.append(elem[0])
+
     return result
 
-def calculate_shift():
-    #打开文件
-    file_org = open(orgdatapath, 'r', encoding = 'utf-8')
-    file_shift = open(shiftdatapath, 'w', encoding = 'utf-8')
+def Get_y(data):
+    result = []
+    for elem in data:
+        result.append(elem[1])
 
-    #提取加速度
-    temp = file_org.readlines()
-    for tempacceleration in temp:
-        #数据预处理，字符串转float
-        tempacceleration = re.sub('\n', '', tempacceleration)
-        acceleration = re.split(' ', tempacceleration)
-        acceleration = stof(acceleration)
+    return result
 
-        shift = Second_integral(velocity, acceleration)
+def Get_z(data):
+    result = []
+    for elem in data:
+        result.append(elem[2])
 
-        #数据存储预处理，float转字符串
-        shift = ftos(shift)
-        shiftdata = ' '.join(shift)
-        shiftdata += '\n'
-        file_shift.write(shiftdata)
+    return result
 
-    #关闭文件
-    file_org.close()
-    file_shift.close()
+def draw():
+    fig = plt.figure()
+    ax = Axes3D(fig)
 
-calculate_shift()
+    location = Get_data()
+    x = Get_x(location)
+    y = Get_y(location)
+    z = Get_z(location)
+
+    ax.scatter3D(x, y, z, cmap = 'Blue')
+    ax.plot3D(x, y, z, 'gray')
+
+    ax.set_xlabel('X Label')
+    ax.set_ylabel('Y Label')
+    ax.set_zlabel('Z Label')
+    plt.show()
+
+    return 1
+
+draw()
